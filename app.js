@@ -1,6 +1,8 @@
 // =================================================
 //  IMPORTING MODULES
 // =================================================
+const dotenv = require("dotenv");
+ dotenv.config();
 const express = require("express"),
   app = express(),
   path = require("path"),
@@ -10,9 +12,7 @@ const express = require("express"),
   passport = require("passport"),
   bodyParser = require("body-parser"),
   LocalStrategy = require("passport-local").Strategy,
-  methodOverride = require("method-override"),
-  dotenv = require("dotenv");
-  dotenv.config();
+  methodOverride = require("method-override");
 
 // =================================================
 //  IMPORTING ROUTES

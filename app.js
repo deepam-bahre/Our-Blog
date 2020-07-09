@@ -10,9 +10,9 @@ const express = require("express"),
   passport = require("passport"),
   bodyParser = require("body-parser"),
   LocalStrategy = require("passport-local").Strategy,
-  methodOverride = require("method-override");
-dotenv = require("dotenv");
-dotenv.config();
+  methodOverride = require("method-override"),
+  dotenv = require("dotenv");
+  dotenv.config();
 
 // =================================================
 //  IMPORTING ROUTES

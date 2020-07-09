@@ -2,7 +2,7 @@
 //  IMPORTING MODULES
 // =================================================
 const dotenv = require("dotenv");
- dotenv.config();
+ dotenv.config({ path: '.env' });
 const express = require("express"),
   app = express(),
   path = require("path"),

@@ -1,0 +1,19 @@
+<link rel="stylesheet" href="../../css/style.css">
+
+<header class="blog-banner WP-slider"></header>
+
+<div class="container">
+    <div class="row justify">
+<div class="col-md-8 col-md-offset-2">
+
+<h3 class="p-3 mb-5 border-bottom">Delete Blog</h3>
+
+<form action="/blogs/{{blog._id}}?_method=DELETE" method="POST" class="text-center">
+    <p>Are you sure you want to delete?</p>
+    <input type="submit" class="btn btn-danger" value="Yes">
+    <a href="/blogs/{{blog._id}}" class="btn btn-secondary">No</a>
+</form>
+
+</div>
+</div>
+</div>

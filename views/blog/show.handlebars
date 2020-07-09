@@ -1,0 +1,29 @@
+<link rel="stylesheet" href="../css/style.css">
+<header class="WP-slider AllBlog-bg">
+    <div class="text-center">
+		
+    </div>
+</header>
+
+<div class="container">
+    <div class="row justify">
+<div class="col-md-8 col-md-offset-2">
+
+<h3 class="p-3 blog-heading">View Blog</h3>
+
+<div class="card">
+    <div class="card-header">{{blog.title}}</div>
+    <div class="card-body">
+        <p class="text-muted"><small>Posted by: {{blog.author}}, {{time}}</small></p>
+        <img src="{{blog.blogImage}}" alt="blog-img" class="blog-image"></p>
+        <p>{{{blog.content}}}</p>
+    </div>
+    <div class="card-footer text-right">
+        <a href="/blogs/{{blog._id}}/delete" class="btn btn-danger">Delete</a>
+        <a href="/blogs/{{blog._id}}/edit" class="btn btn-warning text-white">Edit</a>
+    </div>
+</div>
+
+</div>
+</div>
+</div>

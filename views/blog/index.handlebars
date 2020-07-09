@@ -1,0 +1,32 @@
+<header class="WP-slider AllBlog-bg">
+    <div class="text-center">
+		
+    </div>
+</header>
+
+<div class="container">
+    <div class="row justify">
+<div class="col-md-8 col-md-offset-2">
+
+<h3 class="p-3 blog-heading">View All Blogs</h3>
+
+{{#if blogs}}
+    {{#each blogs}}
+    <div class="card mb-4">
+        <div class="card-header">{{this.title}}</div>
+        <div class="card-body">
+            <img src="{{this.blogImage}}" alt="blog-img" class="blog-image"></p>
+            <p>{{{this.short_content}}}</p>
+            <div>
+                <a href="/blogs/{{this._id}}" class="btn btn-blog">Read More</a>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+{{else}}
+<p>No blogs to show!</p>
+{{/if}}
+
+</div>
+</div>
+</div>

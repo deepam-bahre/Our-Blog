@@ -1,0 +1,33 @@
+<link rel="stylesheet" href="../css/style.css">
+
+<header class="WP-slider AddBlog-bg">
+    <div class="text-center">
+    </div>
+</header>
+
+<div class="container">
+    <div class="row justify">
+<div class="col-md-8 col-md-offset-2">
+
+
+<h3 class="p-3 blog-heading">Add New Blog</h3>
+
+<form action="/blogs" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" name="title" id="title" class="form-control" placeholder="Title">
+    </div>
+    <div class="form-group">
+            <input type="file" name="blogImage"/>
+          </div>
+    <div class="form-group">
+        <label for="content">Content</label>
+        <textarea name="content" id="content" class="form-control" rows="10" placeholder="Content"></textarea>
+    </div>
+    <div class="form-group">
+        <input type="submit" class="btn btn-blog">
+    </div>
+</form>
+</div>
+</div>
+</div>

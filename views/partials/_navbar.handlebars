@@ -1,0 +1,75 @@
+
+<header id="header">
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+    <a class="navbar-brand" href="/">OurBlog</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"><i class="fa fa-align-center" aria-hidden="true"></i></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav ml-auto web-nav-item">
+            {{#if currentUser}}
+            <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
+            <li class="nav-item dropdown dmenu">
+            <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+              Services
+            </a>
+            <div class="dropdown-menu sm-menu">
+              <a class="dropdown-item" href="/design">Design</a>
+              <a class="dropdown-item" href="/development">Development</a>
+              <a class="dropdown-item" href="/marketing">Marketing</a>
+              <a class="dropdown-item" href="/support">Support</a>
+            </div>
+            </li>
+            <li class="nav-item dropdown dmenu">
+            <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+              Blog
+            </a>
+            <div class="dropdown-menu sm-menu">
+              <a class="nav-link sub-menu" href="/blogs">All Blog</a>
+              <a class="nav-link sub-menu" href="/blogs/add">Add Blog</a>
+            </div>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">{{currentUser.username}}</a></li>
+            <li class="nav-item"><a class="nav-link" href="/users/logout">Logout</a></li>
+           {{else}}
+            <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
+            <li class="nav-item dropdown dmenu">
+            <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+              Services
+            </a>
+            <div class="dropdown-menu sm-menu">
+              <a class="dropdown-item" href="/design">Design</a>
+              <a class="dropdown-item" href="/development">Development</a>
+              <a class="dropdown-item" href="/marketing">Marketing</a>
+              <a class="dropdown-item" href="/support">Support</a>
+            </div>
+            </li>
+            <li class="nav-item dropdown dmenu">
+            <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">
+              Blog
+            </a>
+            <div class="dropdown-menu sm-menu">
+              <a class="nav-link sub-menu" href="/blogs">Blog</a>
+            </div>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="/contact">Contact Us</a></li>
+            <li class="nav-item"><a class="nav-link" href="/users/login">Login</a></li>
+            <li class="nav-item"><a class="nav-link" href="/users/register">Register</a></li>
+           {{/if}}
+        </ul>
+    </div>
+    </div>
+</nav>
+</header>
+
+
+
+
+
+
+

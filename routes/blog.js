@@ -1,11 +1,8 @@
 // Importing Express Router
 const router = require('express').Router();
 
-// Importing mongoose
-const mongoose = require('mongoose');
-
-// Importing Blog model
-const Blog = require('../models/blog');
+// Importing Blog Controllers
+const BlogController = require('../controllers/blog');
 
 // Importing Multer
 const multer = require("multer");
@@ -13,14 +10,6 @@ const multer = require("multer");
 // Middleware Import To Make Sure User is Logged to Add, Edit and Delete Blogs
 const isLoggedIn = require('../middleware/middleware').isLoggedIn;
 
-const cloudinary = require('cloudinary').v2
-require('../handlers/cloudinary')
-
-
-
-// =================================================
-//  Multer
-// =================================================
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -35,16 +24,7 @@ var storage = multer.diskStorage({
 
 
 // Get All Blogs
-router.get('/', (req, res) => {
-    Blog.find({})
-    .then(blogs => {
-        res.render('blog/index', { blogs });
-    })
-    .catch(err => {
-        //req.flash('error','Failed to load blogs.');
-        res.redirect('/');
-    });
-});
+router.get('/', BlogController.GetAllBlogs);
 
 // =================================================
 //  BLOG ADD ROUTES
@@ -57,118 +37,34 @@ router.get('/add', (req, res) => {
 
 
 // Handles Add Blog
-router.post('/', upload.single('blogImage'), isLoggedIn, (req, res) => {
-    cloudinary.uploader.upload(req.file.path).then((result) => {
-    // Makes a new object that will be used to create blog. Uses spread operator.
-    const newBlog = new Blog({
-        _id : new mongoose.Types.ObjectId(),
-        title : req.body.title,
-        blogImage : result.url,
-        content : req.body.content,
-        author : req.user.username
-    });
-
-    newBlog.save()
-    .then(blog => {
-        //req.flash('success','Blog created.');
-        res.redirect('/blogs');
-    })
-    .catch(err => {
-        //req.flash('error','Failed to create blog.');
-        res.redirect('/blogs');
-    });
-}).catch((error) => {
-    response.status(500).send({
-      message: "failure",
-      error,
-    });
-  });
-});
+router.post('/', upload.single('blogImage'), isLoggedIn, BlogController.AddBlogs);
 
 // =================================================
 //  BLOG SHOW ROUTE
 // =================================================
 
 // Loads And Displays A Single Blog
-router.get('/:id', (req, res) => {
-
-    // Grabs in req.params.id
-    const { id } = req.params;
-
-    Blog.findById(id)
-    .then(blog => {
-        res.render('blog/show', { blog, time: blog.time.toDateString() });
-    })
-    .catch(err => {
-        //req.flash('error','Failed to load blog.');
-        res.redirect('/blogs');
-    });
-});
+router.get('/:id', BlogController.GetSingleBlogs);
 
 // =================================================
 //  EDIT BLOG ROUTES
 // =================================================
 
 // Loads Edit View
-router.get('/:id/edit', isLoggedIn, (req, res) => {
-
-    // Grabs in req.params.id
-    const { id } = req.params;
-
-    Blog.findById(id)
-    .then(blog => {
-        res.render('blog/edit', { blog });
-    })
-    .catch(err => {
-        //req.flash('error','Failed to load blog for edit.');
-        res.redirect(`/blogs/${id}`);
-    });
-});
+router.get('/:id/edit', isLoggedIn, BlogController.GetEditBlogs);
 
 // Handles Update Blog
-router.put('/:id', isLoggedIn, (req, res) => {
-    Blog.findByIdAndUpdate(req.params.id, req.body)
-    .then(blog => {
-        //req.flash('success','Blog updated.');
-        res.redirect('/blogs');
-    })
-    .catch(err => {
-        //req.flash('error','Failed to update the blog.');
-        res.redirect(`/blogs/${req.params.id}`);
-    });
-});
+router.put('/:id', isLoggedIn, BlogController.UpdateBlogs);
 
 // =================================================
 //  DELETE BLOG ROUTES
 // =================================================
 
 // Loads Delete View
-router.get('/:id/delete', isLoggedIn, (req, res) => {
-    // Grabs in req.params.id
-    const { id } = req.params;
-
-    Blog.findById(id)
-    .then(blog => {
-        res.render('blog/delete', { blog });
-    })
-    .catch(err => {
-        //req.flash('error','Failed to load blog for delete.');
-        res.redirect(`/blogs/${id}`);
-    });
-});
+router.get('/:id/delete', isLoggedIn, BlogController.GetDeleteBlogs);
 
 // Handles Delete Blog
-router.delete('/:id', isLoggedIn, (req, res) => {
-    Blog.findByIdAndRemove(req.params.id)
-    .then(() => {
-        //req.flash('success', 'Blog deleted.');
-        res.redirect('/blogs');
-    })
-    .catch(err => {
-        req.flash('error','Failed to delete blog.');
-        res.redirect(`/blogs/${req.params.id}`);
-    });
-});
+router.delete('/:id', isLoggedIn, BlogController.DeleteBlogs);
 
 // Exports Our Blog Routes
 module.exports = router;

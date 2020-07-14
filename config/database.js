@@ -3,6 +3,8 @@
 // =================================================
 
 const mongoose = require("mongoose");
+dotenv = require("dotenv");
+dotenv.config();
 
 /*
 --------------For Local--------------
@@ -21,7 +23,7 @@ mongoose
 
 /*--------------For Cloud--------------*/
 mongoose.connect(
-  process.env.MONGODB_URI || 'mongodb+srv://deepambahre:d12345@our-blog.j6e5d.mongodb.net/Our-Blog?retryWrites=true&w=majority',
+  process.env.MONGODB_URI,
   { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false })
 .then(() => {
   console.log("database connected successfully");

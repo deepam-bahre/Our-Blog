@@ -1,5 +1,9 @@
 const router = require("express").Router();
 
+// Importing Blog Controllers
+const indexController = require('../controllers/index');
+
+
 router.get("/", (req, res) => {
   res.render("index");
 });
@@ -24,5 +28,11 @@ router.get("/support", (req, res) => {
 router.get("/contact", (req, res) => {
   res.render("pages/contact");
 });
+
+router.get("/contact", (req, res) => {
+  res.render("pages/contact");
+});
+
+router.post("/contact", indexController.contactUs);
 
 module.exports = router;

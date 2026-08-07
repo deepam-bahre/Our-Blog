@@ -1,15 +1,21 @@
-const mongoose = require("mongoose"),
-  passportLocalMongoose = require("passport-local-mongoose");
+const mongoose = require("mongoose");
+const passportLocalMongoose = require("passport-local-mongoose");
+
+// Handles both ES Module (.default) and traditional CommonJS exports
+const passportPlugin = passportLocalMongoose.default || passportLocalMongoose;
 
 const userSchema = new mongoose.Schema({
-  username: String,
-  email: String,
-  password: String,
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
+  },
+  // 'username', 'hash', and 'salt' are handled automatically by passportLocalMongoose
 });
 
-// We plugin passport local mongoose which gives us methods
-// like (de)serializefield and local strategy setup
-userSchema.plugin(passportLocalMongoose);
+// Attach the plugin
+userSchema.plugin(passportPlugin);
 
-// Export Our User Model
 module.exports = mongoose.model("User", userSchema);

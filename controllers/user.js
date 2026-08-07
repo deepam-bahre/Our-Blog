@@ -1,35 +1,20 @@
-// Importing Express Router and Passport
-const router = require("express").Router();
-const passport = require("passport");
-
-// Importing User Model
 const User = require("../models/user");
 
+// Handles User Registration
+const register = async (req, res, next) => {
+  try {
+    const { username, email, password } = req.body;
 
-// =================================================
-//  REGISTRATION ROUTES
-// =================================================
+    const newUser = new User({ username, email });
 
+    await User.register(newUser, password);
 
-// Handles User Register
-const register= (req, res, next) => {
-  let { username, email, password } = req.body;
-
-  const newUser = new User({
-    username,
-    email,
-  });
-
-  User.register(newUser, password)
-    .then((user) => {
-      //req.flash('success', 'Registration successful, please login.')
-      res.redirect("/users/login");
-    })
-    .catch((err) => {
-      //req.flash('error', 'Failed to register.');
-      res.redirect("/users/register");
-    });
+    req.flash("success", "Registration successful! Please log in.");
+    return res.redirect("/users/login");
+  } catch (err) {
+    req.flash("error", err.message || "Failed to register.");
+    return res.redirect("/users/register");
+  }
 };
 
-// Exports Our User Routes
 module.exports = { register };

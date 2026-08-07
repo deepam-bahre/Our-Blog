@@ -22,12 +22,10 @@ mongoose
 */
 
 /*--------------For Cloud--------------*/
-mongoose.connect(
-  process.env.MONGODB_URI,
-  { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false,  useUnifiedTopology: true })
-.then(() => {
-  console.log("database connected successfully");
-})
-.catch((err) => {
-  console.log(err.message);
-});
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("database connected successfully");
+  })
+  .catch((err) => {
+    console.log(err.message);
+  });

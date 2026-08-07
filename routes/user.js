@@ -1,12 +1,6 @@
-// Importing Express Router and Passport
 const router = require("express").Router();
 const passport = require("passport");
-
-// Importing User Model
-const User = require("../models/user");
-
-// Importing User Controllers
-const UserController = require('../controllers/user');
+const UserController = require("../controllers/user");
 
 // =================================================
 //  REGISTRATION ROUTES
@@ -30,23 +24,22 @@ router.get("/login", (req, res) => {
 });
 
 // Handles User Login
-router.post("/login",passport.authenticate("local", {
-    //successFlash: 'Logged in.',
+router.post(
+  "/login",
+  passport.authenticate("local", {
     successRedirect: "/",
-    //failureFlash: 'Username or password is invalid.',
     failureRedirect: "/users/login",
-  }),
-  (req, res) => {
-    // Code Body Empty
-  }
+    failureFlash: true,
+  })
 );
 
 // Handles User Logout
-router.get("/logout", (req, res) => {
-  req.logout();
-  //req.flash('success', 'Logged out.');
-  res.redirect("/");
+router.get("/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) return next(err);
+    req.flash("success", "Logged out successfully.");
+    res.redirect("/");
+  });
 });
 
-// Exports Our User Routes
 module.exports = router;

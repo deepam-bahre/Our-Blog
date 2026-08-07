@@ -1,83 +1,89 @@
 // =================================================
 //  IMPORTING MODULES
 // =================================================
-const express = require("express"),
-  app = express(),
-  path = require("path"),
-  exphbs = require("express-handlebars"),
-  flash = require("connect-flash"),
-  session = require("express-session"),
-  passport = require("passport"),
-  bodyParser = require("body-parser"),
-  LocalStrategy = require("passport-local").Strategy,
-  methodOverride = require("method-override"),
-  dotenv = require("dotenv");
-  dotenv.config();
+const express = require("express");
+const app = express();
+const path = require("path");
+const flash = require("connect-flash");
+const session = require("express-session");
+const passport = require("passport");
+const methodOverride = require("method-override");
+const dotenv = require("dotenv");
+dotenv.config();
+
+// Handlebars Setup with Prototype Access Helper
+const { engine } = require("express-handlebars");
+const Handlebars = require("handlebars");
+const { allowInsecurePrototypeAccess } = require("@handlebars/allow-prototype-access");
 
 // =================================================
-//  IMPORTING ROUTES
+//  IMPORTING ROUTES & MODELS
 // =================================================
-const userRoutes = require("./routes/user"),
-  blogRoutes = require("./routes/blog"),
-  indexRoutes = require("./routes/index");
-
-// Requiring User Model
+const userRoutes = require("./routes/user");
+const blogRoutes = require("./routes/blog");
+const indexRoutes = require("./routes/index");
 const User = require("./models/user");
 
-// =================================================
-//  ADDED DATABASE
-// =================================================
-require("./config/database"),
-  // =================================================
-  //  MIDDLEWARES
-  // =================================================
-app.use(methodOverride("_method"));
-app.set("view engine", "handlebars");
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
-app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+// Initialize Database
+require("./config/database");
 
-// Session Middlewares for user authentication
+// =================================================
+//  MIDDLEWARES
+// =================================================
+app.use(methodOverride("_method"));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+
+// Handlebars Engine Configuration (Fixes prototype access issue)
+app.engine(
+  "handlebars",
+  engine({
+    defaultLayout: "main",
+    handlebars: allowInsecurePrototypeAccess(Handlebars),
+  })
+);
+app.set("view engine", "handlebars");
+
+// Session Setup
 app.use(
   session({
-    secret: "A Secret Monkey With A Secret Hat",
+    secret: process.env.SESSION_SECRET || "A Secret Monkey With A Secret Hat",
     resave: false,
     saveUninitialized: false,
   })
 );
 
-// Initializing Flash for Flash Messages
+// Flash Messages
 app.use(flash());
 
-// Initializing passport for user authentication || login/logout
+// Passport Configuration
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
+
+passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-// Setting up local variables
+// Global Locals Middleware
 app.use((req, res, next) => {
   res.locals.error = req.flash("error");
   res.locals.success = req.flash("success");
   res.locals.currentUser = req.user;
-
   next();
 });
 
 // =================================================
 //  ROUTES
 // =================================================
-// Basic Index Route
 app.use("/", indexRoutes);
-// Post Routes
 app.use("/blogs", blogRoutes);
-// User Routes
 app.use("/users", userRoutes);
 
 // =================================================
 //  SERVER SETUP
 // =================================================
-app.listen(process.env.PORT || 3000, () => {
-  console.log("Server Started at localhost:3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server Started at http://localhost:${PORT}`);
 });

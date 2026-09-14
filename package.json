@@ -2,8 +2,8 @@
   "name": "our-blog",
   "version": "1.0.0",
   "engines": {
-    "node": "12.x",
-    "npm": "6.x"
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   },
   "description": "Our Blog",
   "main": "app.js",
@@ -18,15 +18,14 @@
     "cloudinary": "^2.10.0",
     "connect-flash": "^0.1.1",
     "dotenv": "^8.2.0",
-    "express": "^4.21.0",
+    "express": "^5.2.1",
     "express-handlebars": "^9.0.1",
     "express-session": "^1.15.6",
     "fs": "0.0.1-security",
     "handlebars": "^4.7.8",
-    "heroku": "^8.2.0",
     "method-override": "^3.0.0",
     "mongoose": "^8.0.0",
-    "multer": "^1.4.2",
+    "multer": "^2.3.0",
     "nodemailer": "^9.0.5",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",

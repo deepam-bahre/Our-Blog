@@ -1,0 +1,8 @@
+{
+  "name": "Our Blog",
+  "description": "Full-stack blog and agency web platform with article management, user authentication, and interactive showcase.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

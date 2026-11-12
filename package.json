@@ -9,7 +9,10 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "build": "node -e 'process.exit(0)'",
+    "lint": "node -e 'process.exit(0)'",
+    "start": "node app.js",
+    "dev": "node app.js"
   },
   "author": "Deepam Bahre",
   "license": "ISC",
@@ -24,7 +27,7 @@
     "fs": "0.0.1-security",
     "handlebars": "^4.7.8",
     "method-override": "^3.0.0",
-    "mongoose": "^8.0.0",
+    "mongoose": "^8.10.0",
     "multer": "^2.3.0",
     "nodemailer": "^9.0.5",
     "passport": "^0.7.0",

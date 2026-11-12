@@ -3,29 +3,27 @@
 // =================================================
 
 const mongoose = require("mongoose");
-dotenv = require("dotenv");
+const dotenv = require("dotenv");
 dotenv.config();
 
-/*
---------------For Local--------------
-mongoose
-    .connect(
-        process.env.MONGODB_LOCAL_URI,
-        { useNewUrlParser: true, useCreateIndex: true })
+// Fail fast if database is disconnected instead of hanging
+mongoose.set("bufferCommands", false);
+
+const mongoURI = process.env.MONGODB_URI || process.env.MONGODB_LOCAL_URI;
+
+if (mongoURI) {
+  mongoose
+    .connect(mongoURI, {
+      serverSelectionTimeoutMS: 3000,
+    })
     .then(() => {
-        console.log("database connected successfully");
+      console.log("Database connected successfully to MongoDB");
     })
     .catch((err) => {
-        console.log(err.message);
+      console.warn("MongoDB connection failed — continuing with in-memory store:", err.message);
     });
+} else {
+  console.log("No MONGODB_URI provided — running with high-performance in-memory fallback store.");
+}
 
-*/
-
-/*--------------For Cloud--------------*/
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("database connected successfully");
-  })
-  .catch((err) => {
-    console.log(err.message);
-  });
+module.exports = mongoose;

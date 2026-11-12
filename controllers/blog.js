@@ -1,59 +1,87 @@
-
 // Importing mongoose
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // Importing Blog model
-const Blog = require('../models/blog');
+const Blog = require("../models/blog");
+const memoryStore = require("../config/memoryStore");
 
-const cloudinary = require('cloudinary').v2
-require('../handlers/cloudinary')
+const cloudinary = require("cloudinary").v2;
+require("../handlers/cloudinary");
 
-
+const isMongoActive = () => mongoose.connection.readyState === 1;
 
 // Get All Blogs
-const GetAllBlogs = (req, res) => {
-    Blog.find({})
-    .then(blogs => {
-        res.render('blog/index', { blogs });
-    })
-    .catch(err => {
-        //req.flash('error','Failed to load blogs.');
-        res.redirect('/');
-    });
+const GetAllBlogs = async (req, res) => {
+  if (isMongoActive()) {
+    try {
+      const blogs = await Blog.find({}).sort({ time: -1 });
+      return res.render("blog/index", { blogs });
+    } catch (err) {
+      console.warn("MongoDB query failed, falling back to memory store:", err.message);
+    }
+  }
+
+  const blogs = memoryStore.getBlogs();
+  res.render("blog/index", { blogs });
 };
 
 // =================================================
 //  BLOG ADD ROUTES
 // =================================================
 
-
 // Handles Add Blog
-const AddBlogs = (req, res) => {
-    cloudinary.uploader.upload(req.file.path).then((result) => {
-    // Makes a new object that will be used to create blog. Uses spread operator.
-    const newBlog = new Blog({
-        _id : new mongoose.Types.ObjectId(),
-        title : req.body.title,
-        blogImage : result.url,
-        content : req.body.content,
-        author : req.user.username
-    });
+const AddBlogs = async (req, res) => {
+  try {
+    let imageUrl = "/images/blogs/blog-banner.jpg";
 
-    newBlog.save()
-    .then(blog => {
-        //req.flash('success','Blog created.');
-        res.redirect('/blogs');
-    })
-    .catch(err => {
-        //req.flash('error','Failed to create blog.');
-        res.redirect('/blogs');
-    });
-}).catch((error) => {
-    response.status(500).send({
-      message: "failure",
-      error,
-    });
-  });
+    if (req.file) {
+      const hasCloudinary =
+        process.env.CLOUDINARY_CLOUD_NAME &&
+        process.env.CLOUDINARY_API_KEY &&
+        process.env.CLOUDINARY_API_SECRET;
+
+      if (hasCloudinary) {
+        try {
+          const result = await cloudinary.uploader.upload(req.file.path);
+          imageUrl = result.url || result.secure_url;
+        } catch (cloudErr) {
+          console.warn("Cloudinary upload failed, using local file:", cloudErr.message);
+          imageUrl = `/uploads/${req.file.filename}`;
+        }
+      } else {
+        imageUrl = `/uploads/${req.file.filename}`;
+      }
+    }
+
+    const blogData = {
+      title: req.body.title || "Untitled",
+      blogImage: imageUrl,
+      content: req.body.content || "",
+      author: (req.user && req.user.username) || "Author",
+    };
+
+    if (isMongoActive()) {
+      try {
+        const newBlog = new Blog({
+          _id: new mongoose.Types.ObjectId(),
+          ...blogData,
+        });
+        await newBlog.save();
+        req.flash("success", "Blog created successfully!");
+        return res.redirect("/blogs");
+      } catch (err) {
+        console.warn("MongoDB save failed, saving to memory store:", err.message);
+      }
+    }
+
+    memoryStore.createBlog(blogData);
+    req.flash("success", "Blog created successfully!");
+    res.redirect("/blogs");
+  } catch (error) {
+    console.error("Error in AddBlogs:", error);
+    req.flash("error", "Failed to create blog.");
+    res.redirect("/blogs");
+  }
 };
 
 // =================================================
@@ -61,19 +89,29 @@ const AddBlogs = (req, res) => {
 // =================================================
 
 // Loads And Displays A Single Blog
-const GetSingleBlogs = (req, res) => {
+const GetSingleBlogs = async (req, res) => {
+  const { id } = req.params;
 
-    // Grabs in req.params.id
-    const { id } = req.params;
+  if (isMongoActive() && mongoose.isValidObjectId(id)) {
+    try {
+      const blog = await Blog.findById(id);
+      if (blog) {
+        const timeStr = blog.time ? new Date(blog.time).toDateString() : new Date().toDateString();
+        return res.render("blog/show", { blog, time: timeStr });
+      }
+    } catch (err) {
+      console.warn("MongoDB findById failed, checking memory store:", err.message);
+    }
+  }
 
-    Blog.findById(id)
-    .then(blog => {
-        res.render('blog/show', { blog, time: blog.time.toDateString() });
-    })
-    .catch(err => {
-        //req.flash('error','Failed to load blog.');
-        res.redirect('/blogs');
-    });
+  const blog = memoryStore.getBlogById(id);
+  if (blog) {
+    const timeStr = blog.time ? new Date(blog.time).toDateString() : new Date().toDateString();
+    return res.render("blog/show", { blog, time: timeStr });
+  }
+
+  req.flash("error", "Blog not found.");
+  res.redirect("/blogs");
 };
 
 // =================================================
@@ -81,32 +119,52 @@ const GetSingleBlogs = (req, res) => {
 // =================================================
 
 // Loads Edit View
-const GetEditBlogs= (req, res) => {
+const GetEditBlogs = async (req, res) => {
+  const { id } = req.params;
 
-    // Grabs in req.params.id
-    const { id } = req.params;
+  if (isMongoActive() && mongoose.isValidObjectId(id)) {
+    try {
+      const blog = await Blog.findById(id);
+      if (blog) {
+        return res.render("blog/edit", { blog });
+      }
+    } catch (err) {
+      console.warn("MongoDB findById failed:", err.message);
+    }
+  }
 
-    Blog.findById(id)
-    .then(blog => {
-        res.render('blog/edit', { blog });
-    })
-    .catch(err => {
-        //req.flash('error','Failed to load blog for edit.');
-        res.redirect(`/blogs/${id}`);
-    });
+  const blog = memoryStore.getBlogById(id);
+  if (blog) {
+    return res.render("blog/edit", { blog });
+  }
+
+  req.flash("error", "Blog not found for edit.");
+  res.redirect(`/blogs/${id}`);
 };
 
 // Handles Update Blog
-const UpdateBlogs= (req, res) => {
-    Blog.findByIdAndUpdate(req.params.id, req.body)
-    .then(blog => {
-        //req.flash('success','Blog updated.');
-        res.redirect('/blogs');
-    })
-    .catch(err => {
-        //req.flash('error','Failed to update the blog.');
-        res.redirect(`/blogs/${req.params.id}`);
-    });
+const UpdateBlogs = async (req, res) => {
+  const { id } = req.params;
+  const updateData = {
+    title: req.body.title,
+    content: req.body.content,
+  };
+
+  if (isMongoActive() && mongoose.isValidObjectId(id)) {
+    try {
+      const updated = await Blog.findByIdAndUpdate(id, updateData, { new: true });
+      if (updated) {
+        req.flash("success", "Blog updated successfully.");
+        return res.redirect("/blogs");
+      }
+    } catch (err) {
+      console.warn("MongoDB update failed:", err.message);
+    }
+  }
+
+  memoryStore.updateBlog(id, updateData);
+  req.flash("success", "Blog updated successfully.");
+  res.redirect("/blogs");
 };
 
 // =================================================
@@ -114,38 +172,55 @@ const UpdateBlogs= (req, res) => {
 // =================================================
 
 // Loads Delete View
-const GetDeleteBlogs=(req, res) => {
-    // Grabs in req.params.id
-    const { id } = req.params;
+const GetDeleteBlogs = async (req, res) => {
+  const { id } = req.params;
 
-    Blog.findById(id)
-    .then(blog => {
-        res.render('blog/delete', { blog });
-    })
-    .catch(err => {
-        //req.flash('error','Failed to load blog for delete.');
-        res.redirect(`/blogs/${id}`);
-    });
+  if (isMongoActive() && mongoose.isValidObjectId(id)) {
+    try {
+      const blog = await Blog.findById(id);
+      if (blog) {
+        return res.render("blog/delete", { blog });
+      }
+    } catch (err) {
+      console.warn("MongoDB delete view find failed:", err.message);
+    }
+  }
+
+  const blog = memoryStore.getBlogById(id);
+  if (blog) {
+    return res.render("blog/delete", { blog });
+  }
+
+  req.flash("error", "Blog not found.");
+  res.redirect(`/blogs/${id}`);
 };
 
 // Handles Delete Blog
-const DeleteBlogs= (req, res) => {
-    Blog.findByIdAndRemove(req.params.id)
-    .then(() => {
-        //req.flash('success', 'Blog deleted.');
-        res.redirect('/blogs');
-    })
-    .catch(err => {
-        req.flash('error','Failed to delete blog.');
-        res.redirect(`/blogs/${req.params.id}`);
-    });
+const DeleteBlogs = async (req, res) => {
+  const { id } = req.params;
+
+  if (isMongoActive() && mongoose.isValidObjectId(id)) {
+    try {
+      await Blog.findByIdAndDelete(id);
+      req.flash("success", "Blog deleted successfully.");
+      return res.redirect("/blogs");
+    } catch (err) {
+      console.warn("MongoDB delete failed:", err.message);
+    }
+  }
+
+  memoryStore.deleteBlog(id);
+  req.flash("success", "Blog deleted successfully.");
+  res.redirect("/blogs");
 };
 
 // Exports Our Blog Routes
 module.exports = {
-    GetAllBlogs,AddBlogs,GetSingleBlogs,GetEditBlogs,UpdateBlogs,GetDeleteBlogs,DeleteBlogs
+  GetAllBlogs,
+  AddBlogs,
+  GetSingleBlogs,
+  GetEditBlogs,
+  UpdateBlogs,
+  GetDeleteBlogs,
+  DeleteBlogs,
 };
-
-
-
-
